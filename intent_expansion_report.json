@@ -1,0 +1,367 @@
+{
+  "summary": {
+    "total_messages": 200,
+    "clusters_found": 10,
+    "representative_samples_analyzed": 30,
+    "issues_found": 5,
+    "approved_recommendations": 4
+  },
+  "analysis": {
+    "overloaded_intents": [
+      {
+        "intent": "logistics::refund_required",
+        "reason": "This intent conflates two distinct user needs: an explicit request for a refund ('asking you to give refund') and a general inquiry about the refund policy ('asking about refund policy'). These represent different stages or types of interaction.",
+        "proposed_split": [
+          {
+            "name": "Refund Request",
+            "id": "logistics::refund_request",
+            "description": "When a customer explicitly asks for a refund to be issued for a specific order or situation.",
+            "examples": [
+              "I paid for my order If I didn't get my order then give me my refund back"
+            ]
+          },
+          {
+            "name": "Refund Policy Inquiry",
+            "id": "logistics::refund_policy_inquiry",
+            "description": "When a customer asks about the general terms, conditions, or rules of the company's refund policy.",
+            "examples": [
+              "What is your refund policy?",
+              "How do I get a refund?"
+            ]
+          }
+        ],
+        "risk_score": 5
+      },
+      {
+        "intent": "recommendation::customer_problem",
+        "reason": "This intent is too broad, capturing various forms of personal input that could serve different purposes within a recommendation flow. It combines statements of specific problems, disclosures of personal attributes, and direct suitability questions into one.",
+        "proposed_split": [
+          {
+            "name": "Personal Concern Statement",
+            "id": "recommendation::personal_concern_statement",
+            "description": "When a customer articulates a specific personal issue, concern, or challenge they are facing, without explicitly asking for a product or solution yet.",
+            "examples": [
+              "What about open porse?",
+              "Scalp par lagaye to"
+            ]
+          },
+          {
+            "name": "Personal Attribute Disclosure",
+            "id": "recommendation::personal_attribute_disclosure",
+            "description": "When a customer shares personal details (e.g., age, skin type, hair type) relevant for product consideration, typically as context for a potential recommendation.",
+            "examples": [
+              "Age 10 year h koi side effects"
+            ]
+          },
+          {
+            "name": "Product Suitability Query",
+            "id": "recommendation::product_suitability_query",
+            "description": "When a customer asks if a specific product is suitable for them, given their personal context or problem.",
+            "examples": [
+              "This can use for me ? ",
+              "Is it safe for oily scalp?"
+            ]
+          }
+        ],
+        "risk_score": 4
+      }
+    ],
+    "missing_intents": [
+      {
+        "parent_primary": "logistics",
+        "name": "Order ID Provision",
+        "id": "logistics::order_id_provision",
+        "description": "When a customer provides an order ID without an explicit accompanying query, often expecting the agent to look it up or as context for a subsequent question.",
+        "justification": "Several sample messages contain only an order ID. This is distinct from asking for 'order_status' and helps in setting the context for multi-turn conversations.",
+        "examples": [
+          "3235368 &&order id",
+          "3162371"
+        ],
+        "confidence": 0.9
+      },
+      {
+        "parent_primary": "basic_interactions",
+        "name": "Code Request",
+        "id": "basic_interactions::code_request",
+        "description": "When a customer asks to be sent a code, which could be for various purposes (e.g., discount, verification, OTP, tracking).",
+        "justification": "The message 'Send me code' doesn't fit into any existing intent and represents a common, actionable request.",
+        "examples": [
+          "Send me code"
+        ],
+        "confidence": 0.85
+      },
+      {
+        "parent_primary": "specific_product",
+        "name": "Product Mention Initial",
+        "id": "specific_product::product_mention_initial",
+        "description": "When a customer mentions a specific product name or category without a clear, explicit query, often as an opener for a subsequent question or to identify a product.",
+        "justification": "Messages like 'Boio' or 'Pigem ation cream' are product mentions that aren't yet full questions about usage, benefits, or ingredients. This intent captures such initial product identification.",
+        "examples": [
+          "Boio",
+          "Pigem ation cream"
+        ],
+        "confidence": 0.75
+      }
+    ],
+    "unclear_boundaries": [
+      {
+        "intent_pair": [
+          "logistics::refund_policy",
+          "logistics::refund_required"
+        ],
+        "issue": "The intent `logistics::refund_policy` is described as asking for 'status of their refund/or when they will get their refund amount', but its name implies general policy details. `logistics::refund_required` includes 'asking about refund policy'. This creates significant ambiguity as to where questions about the general refund policy should be routed, or how 'refund status' differs from 'refund amount'.",
+        "recommendation": "1. Rename `logistics::refund_policy` to `logistics::refund_status_inquiry` to accurately reflect its description. 2. Create a new intent, `logistics::refund_policy_details_inquiry`, for general questions about refund terms and conditions. 3. Modify `logistics::refund_required` to *only* cover explicit requests for a refund to be processed."
+      },
+      {
+        "intent_pair": [
+          "recommendation::customer_problem",
+          "recommendation::seeking_solution"
+        ],
+        "issue": "The boundary between merely stating a personal problem (`customer_problem`) and implicitly or explicitly asking for a product or solution for that problem (`seeking_solution`) is very fine. For example, 'What about open porse?' could be seen as a problem statement or an implicit request for a solution, making consistent classification difficult.",
+        "recommendation": "1. Strictly define `recommendation::customer_problem` as the mere articulation of a personal issue or characteristic, *without* any implied or explicit request for a product/solution. 2. Expand `recommendation::seeking_solution` to encompass scenarios where a stated problem (even implicitly) leads to a request for a product, solution, or recommendation, thus acting as the primary entry point for the recommendation flow."
+      },
+      {
+        "intent_pair": [
+          "specific_product::certification",
+          "specific_product::product_speciality_uc"
+        ],
+        "issue": "The `certification` intent focuses on safety ('harmful chemical free'), while `product_speciality_uc` is about benefits. Questions like 'Age 10 year h koi side effects' or 'Is it safe for oily scalp?' blend these, as they inquire about safety, potential harm, and suitability for specific user profiles or conditions, which can also be framed as a product's 'specialty' or benefit.",
+        "recommendation": "1. Broaden `specific_product::certification` to `specific_product::product_safety_and_suitability` to explicitly cover concerns about side effects, age restrictions, allergens, and suitability for specific user types or conditions. 2. Ensure `specific_product::product_speciality_uc` is strictly reserved for inquiries about unique features, benefits, or advantages of a product *not directly related to safety or explicit suitability for a specific condition/user*."
+      }
+    ]
+  },
+  "validation": {
+    "validated": [
+      {
+        "proposal": {
+          "intent": "logistics::refund_required",
+          "reason": "This intent conflates two distinct user needs: an explicit request for a refund ('asking you to give refund') and a general inquiry about the refund policy ('asking about refund policy'). These represent different stages or types of interaction.",
+          "proposed_split": [
+            {
+              "name": "Refund Request",
+              "id": "logistics::refund_request",
+              "description": "When a customer explicitly asks for a refund to be issued for a specific order or situation.",
+              "examples": [
+                "I paid for my order If I didn't get my order then give me my refund back"
+              ]
+            },
+            {
+              "name": "Refund Policy Inquiry",
+              "id": "logistics::refund_policy_inquiry",
+              "description": "When a customer asks about the general terms, conditions, or rules of the company's refund policy.",
+              "examples": [
+                "What is your refund policy?",
+                "How do I get a refund?"
+              ]
+            }
+          ],
+          "risk_score": 5
+        },
+        "approved": true,
+        "concerns": [
+          "The existing intent 'logistics::refund_policy' is currently defined as 'When a customer asks for the status of their refund/or when they will get their refund amount.' This definition describes a 'refund_status' intent, not a policy inquiry. If 'logistics::refund_policy_inquiry' is approved, the existing 'logistics::refund_policy' should be renamed to 'logistics::refund_status' to prevent naming conflicts and accurately reflect its purpose, as the proposed intent explicitly covers 'refund policy' inquiries."
+        ],
+        "final_recommendation": "The proposed split accurately separates distinct user needs (requesting a refund vs. inquiring about the policy), which is valuable for routing and processing. The definitions are unambiguous for the proposed intents. The split helps reduce the ambiguity of the original 'refund_required' intent. A minor adjustment to an existing intent's name is required to fully integrate this."
+      },
+      {
+        "proposal": {
+          "intent": "recommendation::customer_problem",
+          "reason": "This intent is too broad, capturing various forms of personal input that could serve different purposes within a recommendation flow. It combines statements of specific problems, disclosures of personal attributes, and direct suitability questions into one.",
+          "proposed_split": [
+            {
+              "name": "Personal Concern Statement",
+              "id": "recommendation::personal_concern_statement",
+              "description": "When a customer articulates a specific personal issue, concern, or challenge they are facing, without explicitly asking for a product or solution yet.",
+              "examples": [
+                "What about open porse?",
+                "Scalp par lagaye to"
+              ]
+            },
+            {
+              "name": "Personal Attribute Disclosure",
+              "id": "recommendation::personal_attribute_disclosure",
+              "description": "When a customer shares personal details (e.g., age, skin type, hair type) relevant for product consideration, typically as context for a potential recommendation.",
+              "examples": [
+                "Age 10 year h koi side effects"
+              ]
+            },
+            {
+              "name": "Product Suitability Query",
+              "id": "recommendation::product_suitability_query",
+              "description": "When a customer asks if a specific product is suitable for them, given their personal context or problem.",
+              "examples": [
+                "This can use for me ? ",
+                "Is it safe for oily scalp?"
+              ]
+            }
+          ],
+          "risk_score": 4
+        },
+        "approved": false,
+        "concerns": [
+          "Significant overlap with existing intents: 'recommendation::personal_attribute_disclosure' directly overlaps with 'recommendation::customer_information' ('When the customer shares their details like concern etc for product recommendation'). The 'etc' in the existing intent's description would typically include personal attributes.",
+          "Potential for ambiguity in intent distinction for a small LLM, especially between 'Personal Concern Statement' and 'Product Suitability Query', and how they differ from 'recommendation::seeking_solution' ('When customer asks recommendation for a product/category for their skin/hair type').",
+          "The examples for 'Personal Concern Statement' ('What about open porse?', 'Scalp par lagaye to') are themselves ambiguous and could be interpreted as queries about a problem or suitability for a product, rather than just a statement of concern."
+        ],
+        "final_recommendation": "While the original intent 'customer_problem' is broad, the proposed split introduces significant overlap and ambiguity with existing 'recommendation' intents. A more thorough restructuring of the 'recommendation' hierarchy, rather than a direct split, would be needed to address the breadth of 'customer_problem' effectively without creating redundancy or confusion for a small LLM."
+      },
+      {
+        "proposal": {
+          "proposed_split": [
+            {
+              "parent_primary": "logistics",
+              "name": "Order ID Provision",
+              "id": "logistics::order_id_provision",
+              "description": "When a customer provides an order ID without an explicit accompanying query, often expecting the agent to look it up or as context for a subsequent question.",
+              "justification": "Several sample messages contain only an order ID. This is distinct from asking for 'order_status' and helps in setting the context for multi-turn conversations.",
+              "examples": [
+                "3235368 &&order id",
+                "3162371"
+              ],
+              "confidence": 0.9
+            }
+          ]
+        },
+        "approved": true,
+        "concerns": [],
+        "final_recommendation": "This new intent addresses a common conversational pattern where customers provide an order ID as an initial input without an explicit question. It is clearly distinct from 'logistics::order_status' (which implies a query) and is valuable for proactive context setting and streamlining agent workflows. The definition is unambiguous and suitable for a small LLM."
+      },
+      {
+        "proposal": {
+          "proposed_split": [
+            {
+              "parent_primary": "basic_interactions",
+              "name": "Code Request",
+              "id": "basic_interactions::code_request",
+              "description": "When a customer asks to be sent a code, which could be for various purposes (e.g., discount, verification, OTP, tracking).",
+              "justification": "The message 'Send me code' doesn't fit into any existing intent and represents a common, actionable request.",
+              "examples": [
+                "Send me code"
+              ],
+              "confidence": 0.85
+            }
+          ]
+        },
+        "approved": true,
+        "concerns": [],
+        "final_recommendation": "This intent covers a specific, actionable request ('send me code') that doesn't fit well into existing categories. It's unambiguous, distinct, and highly relevant for automating common customer service requests related to various types of codes. A small LLM can easily identify this pattern."
+      },
+      {
+        "proposal": {
+          "proposed_split": [
+            {
+              "parent_primary": "specific_product",
+              "name": "Product Mention Initial",
+              "id": "specific_product::product_mention_initial",
+              "description": "When a customer mentions a specific product name or category without a clear, explicit query, often as an opener for a subsequent question or to identify a product.",
+              "justification": "Messages like 'Boio' or 'Pigem ation cream' are product mentions that aren't yet full questions about usage, benefits, or ingredients. This intent captures such initial product identification.",
+              "examples": [
+                "Boio",
+                "Pigem ation cream"
+              ],
+              "confidence": 0.75
+            }
+          ]
+        },
+        "approved": true,
+        "concerns": [],
+        "final_recommendation": "This intent captures a crucial initial step in many product-related conversations: simply identifying a product. It is distinct from explicit queries about product information or specialty. This helps set conversational context, allows for proactive product information retrieval, and is unambiguous for a small LLM."
+      }
+    ]
+  },
+  "approved_recommendations": [
+    {
+      "proposal": {
+        "intent": "logistics::refund_required",
+        "reason": "This intent conflates two distinct user needs: an explicit request for a refund ('asking you to give refund') and a general inquiry about the refund policy ('asking about refund policy'). These represent different stages or types of interaction.",
+        "proposed_split": [
+          {
+            "name": "Refund Request",
+            "id": "logistics::refund_request",
+            "description": "When a customer explicitly asks for a refund to be issued for a specific order or situation.",
+            "examples": [
+              "I paid for my order If I didn't get my order then give me my refund back"
+            ]
+          },
+          {
+            "name": "Refund Policy Inquiry",
+            "id": "logistics::refund_policy_inquiry",
+            "description": "When a customer asks about the general terms, conditions, or rules of the company's refund policy.",
+            "examples": [
+              "What is your refund policy?",
+              "How do I get a refund?"
+            ]
+          }
+        ],
+        "risk_score": 5
+      },
+      "approved": true,
+      "concerns": [
+        "The existing intent 'logistics::refund_policy' is currently defined as 'When a customer asks for the status of their refund/or when they will get their refund amount.' This definition describes a 'refund_status' intent, not a policy inquiry. If 'logistics::refund_policy_inquiry' is approved, the existing 'logistics::refund_policy' should be renamed to 'logistics::refund_status' to prevent naming conflicts and accurately reflect its purpose, as the proposed intent explicitly covers 'refund policy' inquiries."
+      ],
+      "final_recommendation": "The proposed split accurately separates distinct user needs (requesting a refund vs. inquiring about the policy), which is valuable for routing and processing. The definitions are unambiguous for the proposed intents. The split helps reduce the ambiguity of the original 'refund_required' intent. A minor adjustment to an existing intent's name is required to fully integrate this."
+    },
+    {
+      "proposal": {
+        "proposed_split": [
+          {
+            "parent_primary": "logistics",
+            "name": "Order ID Provision",
+            "id": "logistics::order_id_provision",
+            "description": "When a customer provides an order ID without an explicit accompanying query, often expecting the agent to look it up or as context for a subsequent question.",
+            "justification": "Several sample messages contain only an order ID. This is distinct from asking for 'order_status' and helps in setting the context for multi-turn conversations.",
+            "examples": [
+              "3235368 &&order id",
+              "3162371"
+            ],
+            "confidence": 0.9
+          }
+        ]
+      },
+      "approved": true,
+      "concerns": [],
+      "final_recommendation": "This new intent addresses a common conversational pattern where customers provide an order ID as an initial input without an explicit question. It is clearly distinct from 'logistics::order_status' (which implies a query) and is valuable for proactive context setting and streamlining agent workflows. The definition is unambiguous and suitable for a small LLM."
+    },
+    {
+      "proposal": {
+        "proposed_split": [
+          {
+            "parent_primary": "basic_interactions",
+            "name": "Code Request",
+            "id": "basic_interactions::code_request",
+            "description": "When a customer asks to be sent a code, which could be for various purposes (e.g., discount, verification, OTP, tracking).",
+            "justification": "The message 'Send me code' doesn't fit into any existing intent and represents a common, actionable request.",
+            "examples": [
+              "Send me code"
+            ],
+            "confidence": 0.85
+          }
+        ]
+      },
+      "approved": true,
+      "concerns": [],
+      "final_recommendation": "This intent covers a specific, actionable request ('send me code') that doesn't fit well into existing categories. It's unambiguous, distinct, and highly relevant for automating common customer service requests related to various types of codes. A small LLM can easily identify this pattern."
+    },
+    {
+      "proposal": {
+        "proposed_split": [
+          {
+            "parent_primary": "specific_product",
+            "name": "Product Mention Initial",
+            "id": "specific_product::product_mention_initial",
+            "description": "When a customer mentions a specific product name or category without a clear, explicit query, often as an opener for a subsequent question or to identify a product.",
+            "justification": "Messages like 'Boio' or 'Pigem ation cream' are product mentions that aren't yet full questions about usage, benefits, or ingredients. This intent captures such initial product identification.",
+            "examples": [
+              "Boio",
+              "Pigem ation cream"
+            ],
+            "confidence": 0.75
+          }
+        ]
+      },
+      "approved": true,
+      "concerns": [],
+      "final_recommendation": "This intent captures a crucial initial step in many product-related conversations: simply identifying a product. It is distinct from explicit queries about product information or specialty. This helps set conversational context, allows for proactive product information retrieval, and is unambiguous for a small LLM."
+    }
+  ]
+}
