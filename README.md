@@ -23,15 +23,8 @@ We combined two powerful techniques to balance **Scalability** with **Reasoning 
 
 ## 2. Architecture
 
-```mermaid
-graph TD
-    A[Raw Messages] --> B[Embedding (MiniLM)]
-    B --> C[Clustering (Agglomerative)]
-    C --> D[Select Representative Samples]
-    D --> E[LLM: Identify Issues]
-    E --> F[LLM: Validate Proposals]
-    F --> G[Final Report (JSON)]
-```
+<img width="307" height="747" alt="image" src="https://github.com/user-attachments/assets/25b4195e-5bd2-46c4-b2a3-66baba0bd8fa" />
+
 
 ## 3. Findings & Justifications
 Based on the provided dataset, the pipeline is designed to uncover splits such as:
